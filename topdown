@@ -1,0 +1,61 @@
+yacc5.y
+%{
+#include <stdio.h>
+void yyerror(const char *s);
+int yylex(void);
+%}
+
+%token I T A B C
+
+%%
+S  : I E T S S1
+   | A
+   ;
+
+S1 : C S
+   | /* empty */
+   ;
+
+E  : B
+   ;
+%%
+
+int main()
+{
+    printf("Enter string: ");
+    if (yyparse() == 0)
+        printf("Valid string\n");
+    return 0;
+}
+
+void yyerror(const char *s)
+{
+    printf("Invalid string\n");
+}
+
+
+lex5.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+i       { return I; }
+t       { return T; }
+a       { return A; }
+b       { return B; }
+c       { return C; }
+\n      { return 0; }
+[ \t]   ;
+.       { return yytext[0]; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+commands:
+yacc -d yacc5.y
+lex lex5.l
+cc lex.yy.c y.tab.c -ll
+./a.out
