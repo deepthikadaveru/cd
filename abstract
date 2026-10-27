@@ -1,0 +1,58 @@
+lex6.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+[a-zA-Z]+  { return ID; }
+[0-9]+     { return ID; }
+[ \t]      ;
+\n         { return 0; }
+.          { return yytext[0]; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+yacc6.y
+%{
+#include <stdio.h>
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%token ID
+
+%%
+E : E '+' T { printf("Operator:+\n"); }
+  | T
+  ;
+
+T : T '*' F { printf("Operator:*\n"); }
+  | F
+  ;
+
+F : '(' E ')'
+  | ID
+  ;
+%%
+
+int main()
+{
+    printf("Enter expression:");
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s)
+{
+    printf("Invalid expression\n");
+    return 0;
+}
+commands:
+yacc -d yacc5.y
+lex lex5.l
+cc lex.yy.c y.tab.c -ll
+./a.out
