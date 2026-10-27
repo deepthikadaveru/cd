@@ -1,0 +1,49 @@
+lex2.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+[a-zA-Z][a-zA-Z0-9]*   	return VALID;
+[ \t]                 			;
+\n                    			return 0;
+.                     			return INVALID;
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+yacc2.y
+%{
+#include <stdio.h>
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%token VALID INVALID
+
+%%
+S : VALID   { printf("Valid variable\n"); }
+  | INVALID { printf("Invalid variable\n"); }
+  ;
+%%
+
+int main()
+{
+    printf("Enter a variable: ");
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s)
+{
+    return 0;
+}
+commands
+yacc -d yacc2.y
+lex lex2.l
+cc lex.yy.c y.tab.c -ll
+./a.out
+
